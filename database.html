@@ -1,1 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PGN Viewer</title>
+    <style>
+        #board {
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div id="board"></div>
+    <textarea id="pgn" rows="10" cols="50"></textarea>
+    <button id="loadButton">Load PGN</button>
+    <button id="prevButton">Previous Move</button>
+    <button id="nextButton">Next Move</button>
 
+    <script src="https://cdn.jsdelivr.net/npm/chessboardjs@1.0.0/dist/chessboard.js"></script>
+    <script>
+        var board = ChessBoard('board', 'start');
+        var pgnTextArea = document.getElementById('pgn');
+        var pgnMoves = [];
+        var currentMoveIndex = 0;
+
+        document.getElementById('loadButton').addEventListener('click', loadPGN);
+        document.getElementById('prevButton').addEventListener('click', previousMove);
+        document.getElementById('nextButton').addEventListener('click', nextMove);
+
+        function loadPGN() {
+            var pgn = pgnTextArea.value;
+            var moves = pgn.split(/\d+\./).filter(function (item) {
+                return item.trim() !== '';
+            });
+            pgnMoves = moves.map(function (move) {
+                return move.trim();
+            });
+            currentMoveIndex = 0;
+            board.start();
+            displayCurrentMove();
+        }
+
+        function previousMove() {
+            if (currentMoveIndex > 0) {
+                currentMoveIndex--;
+                board.undo();
+                displayCurrentMove();
+            }
+        }
+
+        function nextMove() {
+            if (currentMoveIndex < pgnMoves.length) {
+                var move = pgnMoves[currentMoveIndex];
+                board.move(move);
+                currentMoveIndex++;
+                displayCurrentMove();
+            }
+        }
+
+        function displayCurrentMove() {
+            var currentMove = pgnMoves[currentMoveIndex];
+            document.getElementById('current-move').textContent = currentMove;
+        }
+    </script>
+    <p id="current-move"></p>
+</body>
+</html>
